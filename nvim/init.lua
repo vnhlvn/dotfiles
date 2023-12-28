@@ -253,6 +253,7 @@ require('lazy').setup({
     },
     build = ':TSUpdate',
   },
+  { 'codota/tabnine-nvim', build = "./dl_binaries.sh" }
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -268,6 +269,16 @@ require('lazy').setup({
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   -- { import = 'custom.plugins' },
 }, {})
+
+require('tabnine').setup({
+  disable_auto_comment=true,
+  accept_keymap="<Tab>",
+  dismiss_keymap = "<C-]>",
+  debounce_ms = 800,
+  suggestion_color = {gui = "#808080", cterm = 244},
+  exclude_filetypes = {"TelescopePrompt", "NvimTree"},
+  log_file_path = nil, -- absolute path to Tabnine log file
+})
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
