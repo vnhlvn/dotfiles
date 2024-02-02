@@ -276,7 +276,8 @@ require('lazy').setup({
 -- NOTE: You can change these options as you wish!
 
 -- Set highlight on search
-vim.o.hlsearch = false
+vim.o.hlsearch = true
+vim.o.tabstop = 4
 
 -- Make line numbers default
 vim.wo.number = true
