@@ -271,6 +271,8 @@ require('lazy').setup({
   { import = 'custom.plugins' },
 }, {})
 
+require('custom.keymap')
+
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
@@ -672,27 +674,6 @@ cmp.setup {
     { name = 'path' },
   },
 }
-
-
-local function replace_with_yanked()
-    -- Save the current yank register and its type
-    local original_yank = vim.fn.getreg('"')
-
-    -- Delete the visual selection and keep the deleted text in the black hole register (_)
-    vim.cmd('normal! "_d')
-
-    -- Restore the original yanked content into the unnamed register
-    vim.fn.setreg('"', original_yank)
-
-    -- Paste the original yanked content
-    vim.cmd('normal! P')
-
-    -- Restore the yank register again to ensure it remains unchanged
-    vim.fn.setreg('"', original_yank)
-end
-
--- Mapping the function to a key combination in visual mode, e.g., <leader>r
-vim.keymap.set('v', '<leader>r', replace_with_yanked, { desc = 'Replace with yanked text' })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
