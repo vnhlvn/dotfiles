@@ -1,0 +1,45 @@
+[includeIf "gitdir:~/work/"]
+  path = ~/.gitcofig.work
+[includeIf "gitdir:~/personal/"]
+  path = ~/.gitconfig.personal
+[commit]
+  gpgSign = true
+[gpg "ssh"]
+  program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+
+[includeIf "gitdir:~/work/"]
+  path = ~/.gitcofig.work
+[includeIf "gitdir:~/personal/"]
+  path = ~/.gitconfig.personal
+[commit]
+  gpgSign = true
+[gpg "ssh"]
+  program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+
+[includeIf "gitdir:~/work/"]
+  path = ~/.gitcofig.work
+[includeIf "gitdir:~/personal/"]
+  path = ~/.gitconfig.personal
+[commit]
+  gpgSign = true
+[gpg "ssh"]
+  program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+
+[includeIf "gitdir:~/work/"]
+  path = ~/.gitcofig.work
+[includeIf "gitdir:~/personal/"]
+  path = ~/.gitconfig.personal
+[commit]
+  gpgSign = true
+[gpg "ssh"]
+  program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+
+[includeIf "gitdir:~/work/"]
+  path = ~/.gitcofig.work
+[includeIf "gitdir:~/personal/"]
+  path = ~/.gitconfig.personal
+[commit]
+  gpgSign = true
+[gpg "ssh"]
+  program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+
