@@ -44,6 +44,7 @@ P.S. You can delete this when you're done too. It's your config now :)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.o.scrolloff = 999
+vim.opt.guicursor = "n-v-i-c:block-Cursor"
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    https://github.com/folke/lazy.nvim
@@ -115,7 +116,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
+  { 'folke/which-key.nvim',  opts = {} },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -278,7 +279,7 @@ require('custom.keymap')
 -- NOTE: You can change these options as you wish!
 
 -- Set highlight on search
-vim.o.hlsearch = true
+vim.o.hlsearch = false
 vim.o.tabstop = 4
 
 -- Make line numbers default
@@ -354,8 +355,10 @@ require('telescope').setup {
       },
     },
   },
-  find_files = {
-    hidden = true,
+  pickers = {
+    find_files = {
+      hidden = true,
+    },
   },
 }
 
@@ -394,6 +397,7 @@ local function live_grep_git_root()
   if git_root then
     require('telescope.builtin').live_grep {
       search_dirs = { git_root },
+      hidden = true,
     }
   end
 end
@@ -429,8 +433,10 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
 vim.keymap.set('n', '<leader>gb', require('telescope.builtin').git_branches, { desc = '[G]it [B]ranches' })
 
-vim.keymap.set('n', '<leader>gw', require('telescope').extensions.git_worktree.git_worktrees, { desc = '[G]it [W]orktrees' })
-vim.keymap.set('n', '<leader>gc', require('telescope').extensions.git_worktree.create_git_worktree, { desc = '[G]it [C]reate Worktree'})
+vim.keymap.set('n', '<leader>gw', require('telescope').extensions.git_worktree.git_worktrees,
+  { desc = '[G]it [W]orktrees' })
+vim.keymap.set('n', '<leader>gc', require('telescope').extensions.git_worktree.create_git_worktree,
+  { desc = '[G]it [C]reate Worktree' })
 vim.keymap.set('n', '<leader>gp', ':G push', { desc = '[G]it [P]ush' })
 
 -- [[ Configure Treesitter ]]
@@ -439,7 +445,7 @@ vim.keymap.set('n', '<leader>gp', ':G push', { desc = '[G]it [P]ush' })
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
+    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash', 'terraform', 'hcl' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
@@ -583,7 +589,9 @@ local servers = {
   -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},
-     tsserver = {},
+  tsserver = {
+    filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" }
+  },
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
 
   lua_ls = {
