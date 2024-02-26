@@ -245,7 +245,14 @@ require('lazy').setup({
           return vim.fn.executable 'make' == 1
         end,
       },
+      {
+        'nvim-telescope/telescope-live-grep-args.nvim' ,
+        version = '^1.0.0',
+      },
     },
+    config = function()
+      require("telescope").load_extension("live_grep_args")
+    end
   },
 
   {
@@ -432,6 +439,7 @@ vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by 
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
 vim.keymap.set('n', '<leader>gb', require('telescope.builtin').git_branches, { desc = '[G]it [B]ranches' })
+vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>", { desc = '[F]ind [G]rep with args' })
 
 vim.keymap.set('n', '<leader>gw', require('telescope').extensions.git_worktree.git_worktrees,
   { desc = '[G]it [W]orktrees' })
