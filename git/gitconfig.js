@@ -1,10 +1,6 @@
 import { $ } from 'bun';
 import Handlebars from 'handlebars';
 
-const MAIN_GITCONFIG = `${process.env.HOME}/.gitconfig`;
-const WORK_GITCONFIG = `${process.env.HOME}/.gitconfig.work`;
-const PERSONAL_GITCONFIG = `${process.env.HOME}/.gitconfig.personal`;
-
 const personalGitConfig = {
 	firstName: await $`op read  "op://Personal/Personal Identity/Identification/first name" -n`.text(),
 	lastName: await $`op read  "op://Personal/Personal Identity/Identification/last name" -n`.text(),
