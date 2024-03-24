@@ -1,2 +1,2 @@
 # dotfiles
-Configueation files.
+Configuration files.
