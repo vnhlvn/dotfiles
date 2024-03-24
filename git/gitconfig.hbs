@@ -2,7 +2,9 @@
   path = ~/.gitcofig.work
 [includeIf "gitdir:~/personal/"]
   path = ~/.gitconfig.personal
+[gpg]
+  format = ssh
 [commit]
   gpgSign = true
 [gpg "ssh"]
-  program = {{ gpgSshProgram }}
+  program = "{{ gpgSshProgram }}"
