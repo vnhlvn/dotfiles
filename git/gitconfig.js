@@ -1,3 +1,4 @@
+import { readdir, mkdir } from "node:fs/promises";
 import { $ } from 'bun';
 import Handlebars from 'handlebars';
 
@@ -31,12 +32,19 @@ const personalTemplateCompiled = Handlebars.compile(personalTemplate)(personalGi
 const workTemplateCompiled = Handlebars.compile(workTemplate)(workGitConfig);
 const mainTemplateCompiled = Handlebars.compile(mainTemplate)(mainGitConfig);
 
-await $`touch .gitconfig`;
-await $`echo ${personalTemplateCompiled} > ${Bun.file('.gitconfig')}`;
+try {
+	const files = await readdir('./dist')
+		if (files.length > 0) {
+			await $`rm -rf .gitconfig .gitconfig.personal .gitconfig.work`.cwd('./dist');
+		}
+} catch (error) {
+	console.log('Caught error:', error);
+	if (error.code === 'ENOENT') {
+		await mkdir('./dist');
+	}
+}
 
-await $`touch .gitconfig.work`;
-await $`echo ${workTemplateCompiled} >> .gitconfig.work`;
-
-await $`touch .gitconfig.main`;
-await $`echo ${mainTemplateCompiled} >> .gitconfig.main`;
+await $`echo ${mainTemplateCompiled} >> './dist/.gitconfig'}`;
+await $`echo ${workTemplateCompiled} >> ./dist/.gitconfig.work`;
+await $`echo ${personalTemplateCompiled} >> ./dist/.gitconfig.personal`;
 
