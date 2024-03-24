@@ -2,6 +2,11 @@ import { readdir, mkdir } from "node:fs/promises";
 import { $ } from 'bun';
 import Handlebars from 'handlebars';
 
+const gpgPrograms = {
+	'linux': '/opt/1Password/op-ssh-sign',
+	'darwin': '/Applications/1Password.app/Contents/MacOS/op-ssh-sign' 
+}
+
 const personalGitConfig = {
 	firstName: await $`op read  "op://Personal/Personal Identity/Identification/first name" -n`.text(),
 	lastName: await $`op read  "op://Personal/Personal Identity/Identification/last name" -n`.text(),
@@ -17,7 +22,7 @@ const workGitConfig = {
 };
 
 const mainGitConfig = {
-	gpgSshProgram: '/Applications/1Password.app/Contents/MacOS/op-ssh-sign' 
+	gpgSshProgram: gpgPrograms[process.platform] 
 };
 
 async function readTemplate(path) {
