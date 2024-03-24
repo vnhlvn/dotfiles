@@ -44,7 +44,7 @@ try {
 	}
 }
 
-await $`echo ${mainTemplateCompiled} >> './dist/.gitconfig'}`;
+await $`echo ${mainTemplateCompiled} >> './dist/.gitconfig'`;
 await $`echo ${workTemplateCompiled} >> ./dist/.gitconfig.work`;
 await $`echo ${personalTemplateCompiled} >> ./dist/.gitconfig.personal`;
 
