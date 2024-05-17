@@ -287,7 +287,8 @@ require('custom.keymap')
 
 -- Set highlight on search
 vim.o.hlsearch = false
-vim.o.tabstop = 4
+vim.o.tabstop = 2
+vim.o.shiftwidth = 2
 
 -- Make line numbers default
 vim.wo.number = true
