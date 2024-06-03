@@ -28,6 +28,8 @@ exec --no-startup-id dex --autostart --environment i3
 
 exec --no-startup-id lxpolkit
 
+exec --no-startup-id flameshot
+
 # Allow floating PIP windows to be sticky
 for_window [title="Picture-in-Picture"] sticky enable
 
