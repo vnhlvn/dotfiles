@@ -26,6 +26,8 @@ default_border pixel 0
 # https://wiki.archlinux.org/index.php/XDG_Autostart
 exec --no-startup-id dex --autostart --environment i3
 
+exec --no-startup-id lxpolkit
+
 # Allow floating PIP windows to be sticky
 for_window [title="Picture-in-Picture"] sticky enable
 
