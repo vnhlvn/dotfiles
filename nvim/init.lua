@@ -236,8 +236,11 @@ require('custom.keymap')
 
 -- Set highlight on search
 vim.o.hlsearch = false
-vim.o.tabstop = 4
+
+vim.o.tabstop = 8 -- Always 8 (see :h tabstop)
+vim.o.softtabstop = 4
 vim.o.shiftwidth = 4
+vim.o.expandtab = true
 
 -- Make line numbers default
 vim.wo.number = true
@@ -517,24 +520,24 @@ end
 local wk = require('which-key')
 
 wk.add({
-    { "<leader>", group = "VISUAL <leader>", mode = "v" },
-    { "<leader>h", desc = "Git [H]unk", mode = "v" },
-    { "<leader>h", group = "Git [H]unk" },
-    { "<leader>c", group = "[C]ode" },
-    { "<leader>c_", hidden = true },
-    { "<leader>d", group = "[D]ocument" },
-    { "<leader>d_", hidden = true },
-    { "<leader>g", group = "[G]it" },
-    { "<leader>g_", hidden = true },
-    { "<leader>h_", hidden = true },
-    { "<leader>r", group = "[R]ename" },
-    { "<leader>r_", hidden = true },
-    { "<leader>s", group = "[S]earch" },
-    { "<leader>s_", hidden = true },
-    { "<leader>t", group = "[T]oggle" },
-    { "<leader>t_", hidden = true },
-    { "<leader>w", group = "[W]orkspace" },
-    { "<leader>w_", hidden = true },
+  { "<leader>",   group = "VISUAL <leader>", mode = "v" },
+  { "<leader>h",  desc = "Git [H]unk",       mode = "v" },
+  { "<leader>h",  group = "Git [H]unk" },
+  { "<leader>c",  group = "[C]ode" },
+  { "<leader>c_", hidden = true },
+  { "<leader>d",  group = "[D]ocument" },
+  { "<leader>d_", hidden = true },
+  { "<leader>g",  group = "[G]it" },
+  { "<leader>g_", hidden = true },
+  { "<leader>h_", hidden = true },
+  { "<leader>r",  group = "[R]ename" },
+  { "<leader>r_", hidden = true },
+  { "<leader>s",  group = "[S]earch" },
+  { "<leader>s_", hidden = true },
+  { "<leader>t",  group = "[T]oggle" },
+  { "<leader>t_", hidden = true },
+  { "<leader>w",  group = "[W]orkspace" },
+  { "<leader>w_", hidden = true },
 })
 
 -- mason-lspconfig requires that these setup functions are called in this order
@@ -559,9 +562,9 @@ local servers = {
   },
   pyright = {},
   -- rust_analyzer = {},
+  templ = { filetypes = { 'templ' } },
   ts_ls = {},
   html = { filetypes = { 'html', 'twig', 'hbs' } },
-
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
