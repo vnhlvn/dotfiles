@@ -663,7 +663,7 @@ cmp.setup {
   },
 }
 
-vim.cmd.colorscheme 'gruvbox'
+vim.cmd.colorscheme 'habamax'
 
 
 -- The line beneath this is called `modeline`. See `:help modeline`
