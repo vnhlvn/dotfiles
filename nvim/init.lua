@@ -6,9 +6,8 @@ vim.g.maplocalleader = ' '
 vim.o.scrolloff = 999
 vim.opt.guicursor = "n-v-i-c:block-Cursor"
 
--- [[ Install `lazy.nvim` plugin manager ]]
---    https://github.com/folke/lazy.nvim
---    `:help lazy.nvim.txt` for more info
+vim.filetype.add({ extension = { templ = "templ" } })
+
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system {
