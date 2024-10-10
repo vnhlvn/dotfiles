@@ -14,4 +14,6 @@ family = "Victor Mono"
 style = "Bold Italic"
 [window]
 option_as_alt = "Both"
+[env]
+TERM = "xterm256color"
 
