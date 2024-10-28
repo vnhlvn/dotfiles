@@ -400,7 +400,7 @@ vim.keymap.set('n', '<leader>gp', ':G push', { desc = '[G]it [P]ush' })
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'css', 'scss', 'vimdoc', 'vim', 'bash', 'terraform', 'hcl' },
+    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'css', 'scss', 'vimdoc', 'vim', 'bash', 'terraform', 'hcl', 'svelte' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
@@ -566,6 +566,7 @@ local servers = {
       diagnostics = { disable = { 'missing-fields' } },
     },
   },
+  svelte = { filetypes = 'svelte'}
 }
 
 -- Setup neovim lua configuration
