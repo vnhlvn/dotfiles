@@ -230,7 +230,7 @@ require('custom.keymap')
 -- Set highlight on search
 vim.o.hlsearch = false
 
-vim.o.tabstop = 8 -- Always 8 (see :h tabstop)
+vim.o.tabstop = 4
 vim.o.softtabstop = 4
 vim.o.shiftwidth = 4
 vim.o.expandtab = true
