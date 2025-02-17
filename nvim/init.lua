@@ -350,7 +350,7 @@ local function live_grep_git_root()
   if git_root then
     require('telescope.builtin').live_grep {
       search_dirs = { git_root },
-      hidden = true,
+      hidden = false,
     }
   end
 end
