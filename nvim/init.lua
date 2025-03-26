@@ -267,9 +267,6 @@ vim.o.timeoutlen = 300
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 
--- NOTE: You should make sure your terminal supports this
-vim.o.termguicolors = true
-
 -- [[ Basic Keymaps ]]
 
 -- Keymaps for better default experience
@@ -565,7 +562,6 @@ local servers = {
   pyright = {},
   -- rust_analyzer = {},
   templ = { filetypes = { 'templ' } },
-  ts_ls = {},
   html = { filetypes = { 'html', 'twig', 'hbs' } },
   lua_ls = {
     Lua = {
@@ -575,7 +571,7 @@ local servers = {
       diagnostics = { disable = { 'missing-fields' } },
     },
   },
-  svelte = { filetypes = 'svelte'}
+  svelte = { filetypes = 'svelte' }
 }
 
 -- Setup neovim lua configuration
@@ -594,12 +590,36 @@ mason_lspconfig.setup {
 
 mason_lspconfig.setup_handlers {
   function(server_name)
-    require('lspconfig')[server_name].setup {
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = servers[server_name],
-      filetypes = (servers[server_name] or {}).filetypes,
-    }
+    if server_name == "denols" then
+      require('lspconfig').denols.setup {
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = servers[server_name],
+        filetypes = (servers[server_name] or {}).filetypes,
+        init_options = {
+          lint = true,
+          unstable = true,
+        },
+        root_dir = require 'lspconfig'.util.root_pattern("deno.json", "deno.jsonc"),
+      }
+    elseif server_name == "ts_ls" then
+      require('lspconfig').ts_ls.setup {
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = servers[server_name],
+        filetypes = (servers[server_name] or {}).filetypes,
+        root_dir = require 'lspconfig'.util.root_pattern("package.json", "tsconfig.json"),
+        single_file_support = false,
+        settings = {},
+      }
+    else
+      require('lspconfig')[server_name].setup {
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = servers[server_name],
+        filetypes = (servers[server_name] or {}).filetypes,
+      }
+    end
   end,
 }
 
@@ -649,8 +669,6 @@ cmp.setup {
   },
 }
 
+
+-- NOTE: You should make sure your terminal supports this
 vim.cmd.colorscheme 'habamax'
-
-
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
