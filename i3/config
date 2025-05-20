@@ -21,6 +21,8 @@ exec --no-startup-id xset -dpms
 # is used in the bar {} block below.
 font pango:Ubuntu Mono 12
 default_border pixel 0
+default_border none
+default_floating_border none
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
@@ -30,6 +32,9 @@ default_border pixel 0
 # https://wiki.archlinux.org/index.php/XDG_Autostart
 exec --no-startup-id dex --autostart --environment i3
 
+exec_always --no-startup-id feh --bg-fill ~/Pictures/vidit-goswami-SzwIKJKR65E-unsplash.jpg
+exec_always --no-startup-id picom --config ~/.config/picom/picom.conf
+
 exec --no-startup-id /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
 
 exec --no-startup-id flameshot
@@ -38,6 +43,18 @@ focus_on_window_activation focus
 
 # Allow floating PIP windows to be sticky
 for_window [title="Picture-in-Picture"] sticky enable
+
+# Make all windows floating
+for_window [class=".*"] floating enable
+
+# Exception for eww bar
+for_window [class="Eww"] floating disable
+for_window [class="Eww"] border none
+
+# Apply full-size layout only to normal windows (excluding eww)
+for_window [window_type="normal" class="^(?!Eww).*$"] resize set 3072 1728
+for_window [window_type="normal" class="^(?!Eww).*$"] move position center
+for_window [window_type="normal" class="^(?!Eww).*$"] move up 150
 
 # The combination of xss-lock, nm-applet and pactl is a popular choice, so
 # they are included here as an example. Modify as you see fit.
@@ -82,7 +99,7 @@ bindsym $mod+Return exec ghostty
 bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec --no-startup-id dmenu_run
+bindsym $mod+d exec --no-startup-id dmenu_run -fn 'UbuntuMono Nerd Font:size=12' -nb '#282a36' -nf '#f8f8f2' -sb '#6272a4' -sf '#f8f8f2' -p ''
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
 # There also is i3-dmenu-desktop which only displays applications shipping a
@@ -222,5 +239,8 @@ bindsym $mod+r mode "resize"
 gaps inner 0
 gaps outer 0
 
-exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+# exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+
+exec --no-startup-id i3-msg 'workspace 1; exec zen'
+exec --no-startup-id i3-msg 'workspace 2; exec ghostty'
 
