@@ -1,0 +1,13 @@
+theme = tokyonight
+window-vsync = true
+window-decoration = none
+window-subtitle = false
+window-theme = ghostty
+
+window-padding-x = 8
+window-padding-y = 8
+
+confirm-close-surface = false
+# background-opacity = 0.2
+
+
