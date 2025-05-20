@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Get CPU usage as a percentage using mpstat
+mpstat 1 1 | awk '/Average:/ {printf "%0.f", 100 - $12}'

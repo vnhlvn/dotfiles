@@ -1,0 +1,74 @@
+(defwidget bar []
+  (centerbox :orientation "h"
+    (workspaces)
+    (date_time)
+    (sidestuff)))
+
+(defwidget sidestuff []
+  (box :class "sidestuff" :orientation "h" :space-evenly false :halign "end"
+    (metric :label ""
+            :value volume
+            :onchange "amixer -D pulse sset Master {}%")
+    (box :class "cpu-box" :space-evenly false
+         (label :text " ")
+         (label :class "cpu-text" :text "${cpu_usage}%"))
+    (box :class "cpu-box" :space-evenly false
+         (label :text " ")
+         (label :class "cpu-text" :text "${round(EWW_RAM.used_mem / powi(1024, 3), 0)}Gb"))
+    (box :class "cpu-box" :space-evenly false
+         (label :text " ")
+         (label :class "cpu-text" :text "${round(EWW_DISK["/"].used / powi(1024, 3), 0)}Gb"))
+    (systray :class "systray" :spacing 10 :icon-size 22)
+    ))
+
+(defwidget workspaces []
+  (box :class "workspaces"
+       :orientation "h"
+       :space-evenly true
+       :halign "start"
+       :spacing 10
+    (button :class "${current_workspace == 1 ? "current" : ""}" :onclick "i3-msg workspace number 1" 1)
+    (button :class "${current_workspace == 2 ? "current" : ""}" :onclick "i3-msg workspace number 2" 2)
+    (button :class "${current_workspace == 3 ? "current" : ""}" :onclick "i3-msg workspace number 3" 3)
+    (button :class "${current_workspace == 4 ? "current" : ""}" :onclick "i3-msg workspace number 4" 4)
+    (button :class "${current_workspace == 5 ? "current" : ""}" :onclick "i3-msg workspace number 5" 5)))
+
+(defwidget date_time []
+  time)
+
+
+(defwidget metric [label value onchange]
+  (box :orientation "h"
+       :class "metric"
+       :space-evenly false
+    (box :class "label" label)
+    (scale :min 0
+           :max 101
+           :active {onchange != ""}
+           :value value
+           :onchange onchange)))
+
+
+
+(defpoll volume :interval "1s"
+  "scripts/getvol")
+
+(defpoll time :interval "10s"
+  "date '+%H:%M %b %d, %Y'")
+
+(defpoll cpu_usage :interval "3s"
+  "scripts/getcpu")
+
+(deflisten current_workspace :initial "1"
+  "scripts/get-workspace")
+
+(defwindow bar
+  :monitor 0
+  :windowtype "dock"
+  :geometry (geometry :x "0%"
+                      :y "0%"
+                      :width "90%"
+                      :height "10px"
+                      :anchor "top center")
+  :reserve (struts :side "top" :distance "4%")
+  (bar))

@@ -1,0 +1,60 @@
+* {
+  all: unset; // Unsets everything so you can style everything from scratch
+}
+
+.bar {
+  font-family: "UbuntuMono Nerd Font";
+  background-color: transparent;
+  color: #b0b4bc;
+  padding: .5rem 1.5rem;
+}
+
+.sidestuff slider {
+  all: unset;
+  color: #ffd5cd;
+}
+
+.metric scale trough highlight {
+  all: unset;
+  background-color: #ffffff;
+  color: #000000;
+  border-radius: 10px;
+}
+
+.metric scale trough {
+  all: unset;
+  background-color: #4e4e4e;
+  border-radius: 50px;
+  min-height: 3px;
+  min-width: 50px;
+  margin-left: 10px;
+  margin-right: 20px;
+}
+
+.label-ram {
+  font-size: large;
+}
+
+.workspaces button:hover {
+  color: #f2a4a4;
+}
+
+.workspaces button.current {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.cpu-box {
+  min-width: 72px;
+  margin: 0 4px;
+}
+
+.cpu-text {
+  color: #b0b4bc;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.systray {
+  margin-left: 16px;
+}

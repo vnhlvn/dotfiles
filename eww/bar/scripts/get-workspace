@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Initial workspace
+i3-msg -t get_workspaces | jq '.[] | select(.focused==true).num'
+
+# Subscribe to workspace changes
+i3-msg -t subscribe -m '[ "workspace" ]' | jq --unbuffered -r '.change as $change | if $change=="focus" then .current.num else empty end'
