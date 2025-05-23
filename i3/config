@@ -50,11 +50,12 @@ for_window [class=".*"] floating enable
 # Exception for eww bar
 for_window [class="Eww"] floating disable
 for_window [class="Eww"] border none
+for_window [class="Dunst"] border none
 
-# Apply full-size layout only to normal windows (excluding eww)
-for_window [window_type="normal" class="^(?!Eww).*$"] resize set 3072 1728
-for_window [window_type="normal" class="^(?!Eww).*$"] move position center
-for_window [window_type="normal" class="^(?!Eww).*$"] move up 150
+# Apply full-size layout only to normal windows (excluding eww and 1Password)
+for_window [window_type="normal" class="^(?!(Eww|1Password)).*$"] resize set 3072 1728
+for_window [window_type="normal" class="^(?!(Eww)).*$"] move position center
+for_window [window_type="normal" class="^(?!(Eww|1Password)).*$"] move up 100
 
 # The combination of xss-lock, nm-applet and pactl is a popular choice, so
 # they are included here as an example. Modify as you see fit.
