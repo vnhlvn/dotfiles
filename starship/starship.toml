@@ -65,12 +65,14 @@ symbol = "  "
 disabled = true
 
 [git_branch]
+format = '[$symbol$branch (:$remote_branch)]($style)'
 symbol = " "
 
 [git_commit]
 tag_symbol = '  '
 
 [golang]
+format = '[$symbol($version )]($style)'
 symbol = " "
 
 [guix_shell]
@@ -113,6 +115,7 @@ symbol = "󰆥 "
 symbol = " "
 
 [nodejs]
+format = '[$symbol($version )]($style)'
 symbol = " "
 
 [ocaml]
