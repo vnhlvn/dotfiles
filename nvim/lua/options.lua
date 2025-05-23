@@ -76,7 +76,7 @@ vim.o.confirm = true
 -- Default indentation preferences
 vim.o.tabstop = 4 -- Default number of spaces tabs count for
 vim.o.softtabstop = 4 -- Default number of spaces that a <Tab> counts for while editing
-vim.o.shiftwidth = 2 -- Default size of an indent
+vim.o.shiftwidth = 4 -- Default size of an indent
 vim.o.expandtab = true -- Use spaces instead of tabs by default
 vim.o.smartindent = true -- Do smart autoindenting when starting a new line
 
