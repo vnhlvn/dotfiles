@@ -9,7 +9,8 @@
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
-set $mod Mod1
+# Mod1 = Alt, Mod4 = Super
+set $mod Mod4
 
 exec_always --no-startup-id xset r rate 240 32
 
@@ -76,15 +77,17 @@ bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ to
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
 # Make the currently focused window a scratchpad
-bindsym $mod+Shift+minus move scratchpad
+# bindsym $mod+Shift+minus move scratchpad
 
 bindsym $mod+Shift+s exec flameshot gui
 
+bindsym $mod+Shift+w exec "wakeonlan 80:5B:65:86:A7:00 && sleep 1 && xrandr --output HDMI-0 --mode 3840x2160 --rate 120"
+
 # Show the first scratchpad window
-bindsym $mod+minus scratchpad show
+# bindsym $mod+minus scratchpad show
 
 # Show the sup-mail scratchpad window, if any.
-bindsym mod4+s [title="^Sup ::"] scratchpad show
+# bindsym mod4+s [title="^Sup ::"] scratchpad show
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
