@@ -16,6 +16,16 @@ return {
         additional_vim_regex_highlighting = { 'ruby' },
       },
       indent = { enable = true, disable = { 'ruby' } },
+      textobjects = {
+        lsp_interop = {
+          enable = true,
+          border = 'rounded',
+          peek_definition_code = {
+            ['<leader>df'] = '@function.outer',
+            ['<leader>dF'] = '@class.outer',
+          },
+        },
+      },
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
