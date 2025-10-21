@@ -218,8 +218,26 @@ return {
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
+        -- Only enable in Node.js projects, not Deno projects
+        ts_ls = {
+          root_dir = function(bufnr, on_dir)
+            local root = vim.fs.root(bufnr, { 'package.json' })
+            if root then
+              on_dir(root)
+            end
+            -- Don't call on_dir() if no package.json - LSP won't attach
+          end,
+        },
+        denols = {
+          single_file_support = false,
+          root_dir = function(bufnr, on_dir)
+            local root = vim.fs.root(bufnr, { 'deno.json', 'deno.jsonc' })
+            if root then
+              on_dir(root)
+            end
+            -- Don't call on_dir() if no deno.json - LSP won't attach
+          end,
+        },
 
         lua_ls = {
           -- cmd = { ... },
@@ -258,18 +276,14 @@ return {
 
       require('mason-lspconfig').setup {
         ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-        automatic_installation = false,
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            -- This handles overriding only values explicitly passed
-            -- by the server configuration above. Useful when disabling
-            -- certain features of an LSP (for example, turning off formatting for ts_ls)
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
       }
+
+      -- Configure LSP servers using vim.lsp.config (nvim 0.11+)
+      -- mason-lspconfig will automatically enable them
+      for server_name, server_config in pairs(servers) do
+        server_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server_config.capabilities or {})
+        vim.lsp.config[server_name] = server_config
+      end
     end,
   },
 }
