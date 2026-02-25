@@ -10,8 +10,10 @@ window-padding-y = 8
 confirm-close-surface = false
 background-opacity = 0.85
 background = #21151d
+background-blur = true
 
 # font
+font-size = 16
 font-family-italic = VictorMono
 font-style-italic = "Bold Italic"
 

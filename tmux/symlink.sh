@@ -5,3 +5,6 @@ ln -s $(pwd)/.tmux.conf ~
 
 rm -rf ~/weather.sh
 ln -s $(pwd)/weather.sh ~
+
+rm -rf ~/status-daemon.sh
+ln -s $(pwd)/status-daemon.sh ~

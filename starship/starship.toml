@@ -7,202 +7,243 @@ symbol = " "
 style = "purple"
 
 [character]
-success_symbol = "[ ](bold yellow)"
-error_symbol = "[ ](bold red)"
+success_symbol = "[ ](bold yellow)"
+error_symbol = "[ ](bold red)"
 
 [aws]
-symbol = "  "
+symbol = "  "
 disabled = true
 
-
 [buf]
-symbol = " "
+symbol = " "
+disabled = true
 
 [bun]
-symbol = " "
+symbol = " "
+disabled = true
 
 [c]
-symbol = " "
+symbol = " "
+disabled = true
 
 [cpp]
-symbol = " "
+symbol = " "
+disabled = true
 
 [cmake]
-symbol = " "
+symbol = " "
+disabled = true
 
 [conda]
-symbol = " "
+symbol = " "
+disabled = true
 
 [crystal]
-symbol = " "
+symbol = " "
+disabled = true
 
 [dart]
-symbol = " "
+symbol = " "
+disabled = true
 
 [deno]
-symbol = " "
+symbol = " "
+disabled = true
 
 [directory]
 read_only = " 󰌾"
 
 [docker_context]
-symbol = " "
+symbol = " "
+disabled = true
+
+[dotnet]
+disabled = true
 
 [elixir]
-symbol = " "
+symbol = " "
+disabled = true
 
 [elm]
-symbol = " "
+symbol = " "
+disabled = true
 
 [fennel]
-symbol = " "
+symbol = " "
+disabled = true
 
 [fossil_branch]
-symbol = " "
+symbol = " "
+disabled = true
 
 [gcloud]
-symbol = "  "
+symbol = "  "
 disabled = true
 
 [git_branch]
 format = '[$symbol$branch (:$remote_branch)]($style)'
-symbol = " "
+symbol = " "
 
 [git_commit]
-tag_symbol = '  '
+tag_symbol = '  '
 
 [golang]
 format = '[$symbol($version )]($style)'
-symbol = " "
+symbol = " "
 
 [guix_shell]
-symbol = " "
+symbol = " "
+disabled = true
 
 [haskell]
-symbol = " "
+symbol = " "
+disabled = true
 
 [haxe]
-symbol = " "
+symbol = " "
+disabled = true
 
 [hg_branch]
-symbol = " "
+symbol = " "
+disabled = true
 
 [hostname]
-ssh_symbol = " "
+ssh_symbol = " "
 
 [java]
-symbol = " "
+symbol = " "
+disabled = true
 
 [julia]
-symbol = " "
+symbol = " "
+disabled = true
 
 [kotlin]
-symbol = " "
+symbol = " "
+disabled = true
 
 [lua]
-symbol = " "
+symbol = " "
+disabled = true
 
 [memory_usage]
 symbol = "󰍛 "
 
 [meson]
 symbol = "󰔷 "
+disabled = true
 
 [nim]
 symbol = "󰆥 "
+disabled = true
 
 [nix_shell]
-symbol = " "
+symbol = " "
+disabled = true
 
 [nodejs]
 format = '[$symbol($version )]($style)'
-symbol = " "
+symbol = " "
+detect_folders = []
 
 [ocaml]
-symbol = " "
+symbol = " "
+disabled = true
 
 [os.symbols]
-Alpaquita = " "
-Alpine = " "
-AlmaLinux = " "
-Amazon = " "
-Android = " "
-Arch = " "
-Artix = " "
-CachyOS = " "
-CentOS = " "
-Debian = " "
-DragonFly = " "
-Emscripten = " "
-EndeavourOS = " "
-Fedora = " "
-FreeBSD = " "
+Alpaquita = " "
+Alpine = " "
+AlmaLinux = " "
+Amazon = " "
+Android = " "
+Arch = " "
+Artix = " "
+CachyOS = " "
+CentOS = " "
+Debian = " "
+DragonFly = " "
+Emscripten = " "
+EndeavourOS = " "
+Fedora = " "
+FreeBSD = " "
 Garuda = "󰛓 "
-Gentoo = " "
+Gentoo = " "
 HardenedBSD = "󰞌 "
 Illumos = "󰈸 "
-Kali = " "
-Linux = " "
-Mabox = " "
-Macos = " "
-Manjaro = " "
-Mariner = " "
-MidnightBSD = " "
-Mint = " "
-NetBSD = " "
-NixOS = " "
-Nobara = " "
+Kali = " "
+Linux = " "
+Mabox = " "
+Macos = " "
+Manjaro = " "
+Mariner = " "
+MidnightBSD = " "
+Mint = " "
+NetBSD = " "
+NixOS = " "
+Nobara = " "
 OpenBSD = "󰈺 "
-openSUSE = " "
+openSUSE = " "
 OracleLinux = "󰌷 "
-Pop = " "
-Raspbian = " "
-Redhat = " "
-RedHatEnterprise = " "
-RockyLinux = " "
+Pop = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+RockyLinux = " "
 Redox = "󰀘 "
 Solus = "󰠳 "
-SUSE = " "
-Ubuntu = " "
-Unknown = " "
-Void = " "
+SUSE = " "
+Ubuntu = " "
+Unknown = " "
+Void = " "
 Windows = "󰍲 "
 
 [package]
 symbol = "󰏗 "
+disabled = true
 
 [perl]
-symbol = " "
+symbol = " "
+disabled = true
 
 [php]
-symbol = " "
+symbol = " "
+disabled = true
 
 [pijul_channel]
-symbol = " "
+symbol = " "
+disabled = true
 
 [pixi]
 symbol = "󰏗 "
+disabled = true
 
 [python]
-symbol = " "
+symbol = " "
 
 [rlang]
 symbol = "󰟔 "
+disabled = true
 
 [ruby]
-symbol = " "
+symbol = " "
+disabled = true
 
 [rust]
 symbol = "󱘗 "
+disabled = true
 
 [scala]
-symbol = " "
+symbol = " "
+disabled = true
 
 [swift]
-symbol = " "
+symbol = " "
+disabled = true
 
 [zig]
-symbol = " "
+symbol = " "
+disabled = true
 
 [gradle]
-symbol = " "
+symbol = " "
+disabled = true
