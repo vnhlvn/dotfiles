@@ -1,0 +1,18 @@
+# source|target|os|mode
+# os: all|linux|macos
+# mode: both|install|sync
+zsh/.zshrc|~/.zshrc|all|both
+zsh/aliases.sh|~/aliases.sh|all|both
+tmux/.tmux.conf|~/.tmux.conf|all|both
+tmux/weather.sh|~/weather.sh|all|both
+tmux/status-daemon.sh|~/status-daemon.sh|all|both
+starship/starship.toml|~/.config/starship.toml|all|both
+nvim|~/.config/nvim|all|both
+alacritty/alacritty.toml|~/.config/alacritty/alacritty.toml|all|both
+alacritty/themes|~/.config/alacritty/themes|all|install
+ghostty/config|~/.config/ghostty/config|all|both
+picom/picom.conf|~/.config/picom/picom.conf|linux|both
+i3/config|~/.config/i3/config|linux|both
+git/dist/.gitconfig|~/.gitconfig|all|both
+git/dist/.gitconfig.personal|~/.gitconfig.personal|all|both
+git/dist/.gitconfig.work|~/.gitconfig.work|all|both

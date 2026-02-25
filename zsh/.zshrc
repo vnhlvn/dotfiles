@@ -34,7 +34,11 @@ export PATH
 autoload -Uz compinit && compinit
 
 # ── Sources (file I/O only, no subshells) ────────────────────
-source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+if [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+elif [[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+  source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
 source "$HOME/aliases.sh"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
@@ -42,6 +46,3 @@ source "$HOME/aliases.sh"
 # ── Evals (subshell spawns, slowest — keep last) ─────────────
 eval "$(fnm env --use-on-cd --shell zsh)"
 eval "$(starship init zsh)"
-
-# bun completions
-[ -s "/Users/iholovi/.bun/_bun" ] && source "/Users/iholovi/.bun/_bun"
