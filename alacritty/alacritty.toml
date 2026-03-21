@@ -17,5 +17,5 @@ style = "Italic"
 family = "Victor Mono"
 style = "Bold Italic"
 [window]
-option_as_alt = "Both"
+# option_as_alt = "Both"  # macOS-only; set in ~/.config/alacritty/local.toml
 

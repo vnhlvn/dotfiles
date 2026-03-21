@@ -19,4 +19,4 @@ list:
 	./scripts/dotfiles list
 
 gitconfig:
-	cd git && bun install && bun run gitconfig.js
+	./scripts/dotfiles gitconfig

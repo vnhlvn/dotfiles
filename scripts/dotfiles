@@ -3,50 +3,80 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MANIFEST_FILE="${ROOT_DIR}/dotfiles.manifest"
+VERSION="1.0.0"
 
 DRY_RUN=0
 FORCE=0
 BACKUP=1
 VERBOSE=1
 
-log() {
-  if [[ "${VERBOSE}" -eq 1 ]]; then
-    printf '%s\n' "$*"
-  fi
+# ── Counters ──────────────────────────────────────────────────
+COUNT_LINKED=0
+COUNT_CURRENT=0
+COUNT_SKIPPED=0
+COUNT_BACKED_UP=0
+COUNT_SYNCED=0
+COUNT_GENERATED=0
+
+# ── UI ────────────────────────────────────────────────────────
+BOLD=$'\033[1m'
+DIM=$'\033[2m'
+RST=$'\033[0m'
+GREEN=$'\033[32m'
+YELLOW=$'\033[33m'
+RED=$'\033[31m'
+CYAN=$'\033[36m'
+MAGENTA=$'\033[35m'
+
+ui_header() { printf "\n${BOLD}${MAGENTA}  %s${RST}\n\n" "$*"; }
+ui_ok()     { printf "    ${GREEN}✓${RST}  %-45s %s\n" "$1" "${2:-}"; }
+ui_skip()   { printf "    ${DIM}·${RST}  ${DIM}%-45s %s${RST}\n" "$1" "${2:-}"; }
+ui_warn()   { printf "    ${YELLOW}!${RST}  %-45s %s\n" "$1" "${2:-}"; }
+ui_err()    { printf "    ${RED}✗${RST}  %-45s %s\n" "$1" "${2:-}"; }
+ui_info()   { printf "    ${CYAN}→${RST}  %s\n" "$*"; }
+ui_dry()    { printf "    ${YELLOW}~${RST}  %-45s %s\n" "$1" "${2:-dry run}"; }
+
+ui_summary() {
+  local parts=()
+  [[ $COUNT_LINKED -gt 0 ]]    && parts+=("${COUNT_LINKED} linked")
+  [[ $COUNT_CURRENT -gt 0 ]]   && parts+=("${COUNT_CURRENT} current")
+  [[ $COUNT_GENERATED -gt 0 ]] && parts+=("${COUNT_GENERATED} generated")
+  [[ $COUNT_SYNCED -gt 0 ]]    && parts+=("${COUNT_SYNCED} synced")
+  [[ $COUNT_BACKED_UP -gt 0 ]] && parts+=("${COUNT_BACKED_UP} backed up")
+  [[ $COUNT_SKIPPED -gt 0 ]]   && parts+=("${COUNT_SKIPPED} skipped")
+  local summary=""
+  for i in "${!parts[@]}"; do
+    [[ $i -gt 0 ]] && summary+=" · "
+    summary+="${parts[$i]}"
+  done
+  printf "\n  ${BOLD}%s${RST}\n\n" "${summary:-nothing to do}"
 }
 
-warn() {
-  printf 'warning: %s\n' "$*" >&2
-}
-
-die() {
-  printf 'error: %s\n' "$*" >&2
-  exit 1
-}
-
+# ── Helpers ───────────────────────────────────────────────────
 current_os() {
   case "$(uname -s)" in
     Darwin) echo "macos" ;;
-    Linux) echo "linux" ;;
-    *) echo "unknown" ;;
+    Linux)  echo "linux" ;;
+    *)      echo "unknown" ;;
   esac
 }
 
-applies_to_os() {
-  local entry_os="$1"
-  local host_os="$2"
+die() {
+  ui_err "$*"
+  exit 1
+}
 
+applies_to_os() {
+  local entry_os="$1" host_os="$2"
   [[ "${entry_os}" == "all" || "${entry_os}" == "${host_os}" ]]
 }
 
 applies_to_mode() {
-  local entry_mode="$1"
-  local action="$2"
-
+  local entry_mode="$1" action="$2"
   case "${entry_mode}" in
     both|"") return 0 ;;
     install) [[ "${action}" == "install" || "${action}" == "status" || "${action}" == "list" ]] ;;
-    sync) [[ "${action}" == "sync" || "${action}" == "status" || "${action}" == "list" ]] ;;
+    sync)    [[ "${action}" == "sync"    || "${action}" == "status" || "${action}" == "list" ]] ;;
     *) return 1 ;;
   esac
 }
@@ -55,62 +85,134 @@ expand_path() {
   local value="$1"
   case "${value}" in
     \~/*) printf '%s/%s\n' "${HOME}" "${value#\~/}" ;;
-    \~) printf '%s\n' "${HOME}" ;;
-    *) printf '%s\n' "${value}" ;;
+    \~)   printf '%s\n' "${HOME}" ;;
+    *)    printf '%s\n' "${value}" ;;
   esac
+}
+
+short_path() {
+  local p="$1"
+  if [[ "$p" == "$HOME"* ]]; then
+    printf '~%s\n' "${p#"$HOME"}"
+  else
+    printf '%s\n' "$p"
+  fi
 }
 
 run_cmd() {
   if [[ "${DRY_RUN}" -eq 1 ]]; then
-    printf '[dry-run] %s\n' "$*"
+    return 0
   else
     eval "$@"
   fi
 }
 
 ensure_parent_dir() {
-  local path="$1"
   local parent
-  parent="$(dirname "${path}")"
+  parent="$(dirname "$1")"
   run_cmd "mkdir -p \"${parent}\""
 }
 
-backup_or_replace_target() {
-  local target="$1"
-
-  if [[ ! -e "${target}" && ! -L "${target}" ]]; then
-    return 0
-  fi
-
-  if [[ "${BACKUP}" -eq 1 ]]; then
-    local stamp backup_path
-    stamp="$(date +%Y%m%d-%H%M%S)"
-    backup_path="${target}.bak.${stamp}"
-    log "Backing up ${target} -> ${backup_path}"
-    run_cmd "mv \"${target}\" \"${backup_path}\""
-    return 0
-  fi
-
-  if [[ "${FORCE}" -eq 1 ]]; then
-    log "Replacing ${target}"
-    run_cmd "rm -rf \"${target}\""
-    return 0
-  fi
-
-  warn "Skipping ${target} (already exists). Use --force or remove it manually."
-  return 1
+# ── Git config generation ─────────────────────────────────────
+op_read() {
+  op read "$1" -n 2>/dev/null
 }
 
-link_entry() {
-  local src_rel="$1"
-  local target_raw="$2"
-  local target src
+generate_gitconfig() {
+  local dist_dir="${ROOT_DIR}/git/dist"
+  local host_os="$1"
 
-  src="${ROOT_DIR}/${src_rel}"
+  if ! command -v op >/dev/null 2>&1; then
+    ui_skip "git configs" "op not found, run 'dotfiles gitconfig' later"
+    return 0
+  fi
+
+  if [[ "${DRY_RUN}" -eq 1 ]]; then
+    ui_dry ".gitconfig + .gitconfig.personal + .gitconfig.work" "would generate from 1Password"
+    return 0
+  fi
+
+  # Check if op is signed in
+  if ! op whoami --format=json >/dev/null 2>&1; then
+    ui_skip "git configs" "op not signed in, run 'eval \$(op signin)' first"
+    return 0
+  fi
+
+  ui_info "generating git configs from 1Password..."
+  mkdir -p "$dist_dir"
+
+  # gpg ssh program path
+  local gpg_program
+  case "$host_os" in
+    macos) gpg_program="/Applications/1Password.app/Contents/MacOS/op-ssh-sign" ;;
+    linux) gpg_program="/opt/1Password/op-ssh-sign" ;;
+  esac
+
+  # Main .gitconfig
+  local main_tpl
+  main_tpl="$(cat "${ROOT_DIR}/git/gitconfig.hbs")"
+  main_tpl="${main_tpl//\{\{ gpgSshProgram \}\}/$gpg_program}"
+  if [[ "${DRY_RUN}" -eq 1 ]]; then
+    ui_dry ".gitconfig"
+  else
+    printf '%s\n' "$main_tpl" > "${dist_dir}/.gitconfig"
+    ui_ok ".gitconfig" "generated"
+    ((++COUNT_GENERATED))
+  fi
+
+  # Personal + Work configs (same template shape)
+  local scope
+  for scope in personal work; do
+    local tpl vault_prefix first last email pubkey
+    tpl="$(cat "${ROOT_DIR}/git/${scope}.hbs")"
+
+    if [[ "$scope" == "personal" ]]; then
+      vault_prefix="op://Personal/Personal"
+      first="$(op_read "${vault_prefix} Identity/Identification/first name")" || true
+      last="$(op_read "${vault_prefix} Identity/Identification/last name")" || true
+      email="$(op_read "${vault_prefix} Identity/Internet Details/email")" || true
+      pubkey="$(op_read "op://Personal/Personal SSH Key/public key")" || true
+    else
+      vault_prefix="op://Work/Amplify"
+      first="$(op_read "${vault_prefix} Identity/Identification/first name")" || true
+      last="$(op_read "${vault_prefix} Identity/Identification/last name")" || true
+      email="$(op_read "${vault_prefix} Identity/Identification/email")" || true
+      pubkey="$(op_read "op://Work/Work SSH Key/public key")" || true
+    fi
+
+    if [[ -z "$first" || -z "$email" ]]; then
+      ui_warn ".gitconfig.${scope}" "could not read from 1Password"
+      ((++COUNT_SKIPPED))
+      continue
+    fi
+
+    tpl="${tpl//\{\{ firstName \}\}/$first}"
+    tpl="${tpl//\{\{ lastName \}\}/$last}"
+    tpl="${tpl//\{\{ email \}\}/$email}"
+    tpl="${tpl//\{\{ publicKey \}\}/$pubkey}"
+
+    if [[ "${DRY_RUN}" -eq 1 ]]; then
+      ui_dry ".gitconfig.${scope}"
+    else
+      printf '%s\n' "$tpl" > "${dist_dir}/.gitconfig.${scope}"
+      ui_ok ".gitconfig.${scope}" "generated"
+      ((++COUNT_GENERATED))
+    fi
+  done
+}
+
+# ── Link ──────────────────────────────────────────────────────
+link_entry() {
+  local src_rel="$1" target_raw="$2"
+  local src="${ROOT_DIR}/${src_rel}"
+  local target
   target="$(expand_path "${target_raw}")"
+  local display
+  display="$(short_path "$target")"
 
   if [[ ! -e "${src}" && ! -L "${src}" ]]; then
-    warn "Source missing, skipping: ${src_rel}"
+    ui_skip "$display" "source missing"
+    ((++COUNT_SKIPPED))
     return 0
   fi
 
@@ -118,30 +220,57 @@ link_entry() {
     local linked_to
     linked_to="$(readlink "${target}" || true)"
     if [[ "${linked_to}" == "${src}" ]]; then
-      log "Already linked: ${target} -> ${src}"
+      ui_skip "$display" "already linked"
+      ((++COUNT_CURRENT))
       return 0
     fi
   fi
 
-  if ! backup_or_replace_target "${target}"; then
-    return 0
+  # Handle existing target
+  if [[ -e "${target}" || -L "${target}" ]]; then
+    if [[ "${BACKUP}" -eq 1 ]]; then
+      local stamp backup_path
+      stamp="$(date +%Y%m%d-%H%M%S)"
+      backup_path="${target}.bak.${stamp}"
+      if [[ "${DRY_RUN}" -eq 1 ]]; then
+        ui_dry "$display" "would back up & link"
+        return 0
+      fi
+      mv "${target}" "${backup_path}"
+      ((++COUNT_BACKED_UP))
+    elif [[ "${FORCE}" -eq 1 ]]; then
+      run_cmd "rm -rf \"${target}\""
+    else
+      ui_warn "$display" "exists, use --force"
+      ((++COUNT_SKIPPED))
+      return 0
+    fi
   fi
 
   ensure_parent_dir "${target}"
-  run_cmd "ln -s \"${src}\" \"${target}\""
-  log "Linked ${target} -> ${src}"
+
+  if [[ "${DRY_RUN}" -eq 1 ]]; then
+    ui_dry "$display"
+    return 0
+  fi
+
+  ln -s "${src}" "${target}"
+  ui_ok "$display" "linked"
+  ((++COUNT_LINKED))
 }
 
+# ── Sync ──────────────────────────────────────────────────────
 copy_back_entry() {
-  local src_rel="$1"
-  local target_raw="$2"
-  local target src
-
-  src="${ROOT_DIR}/${src_rel}"
+  local src_rel="$1" target_raw="$2"
+  local src="${ROOT_DIR}/${src_rel}"
+  local target
   target="$(expand_path "${target_raw}")"
+  local display
+  display="$(short_path "$target")"
 
   if [[ ! -e "${target}" && ! -L "${target}" ]]; then
-    log "Target missing, skipping: ${target}"
+    ui_skip "$display" "not on machine"
+    ((++COUNT_SKIPPED))
     return 0
   fi
 
@@ -149,38 +278,45 @@ copy_back_entry() {
     local linked_to
     linked_to="$(readlink "${target}" || true)"
     if [[ "${linked_to}" == "${src}" ]]; then
-      log "Linked target, no sync needed: ${target}"
+      ui_skip "$display" "symlinked, no sync needed"
+      ((++COUNT_CURRENT))
       return 0
     fi
   fi
 
   ensure_parent_dir "${src}"
 
-  if [[ -d "${target}" && ! -L "${target}" ]]; then
-    run_cmd "rm -rf \"${src}\""
-    run_cmd "cp -R \"${target}\" \"${src}\""
-    log "Synced directory ${target} -> ${src}"
-  else
-    run_cmd "cp \"${target}\" \"${src}\""
-    log "Synced file ${target} -> ${src}"
+  if [[ "${DRY_RUN}" -eq 1 ]]; then
+    ui_dry "$display" "would sync back"
+    return 0
   fi
+
+  if [[ -d "${target}" && ! -L "${target}" ]]; then
+    rm -rf "${src}"
+    cp -R "${target}" "${src}"
+  else
+    cp "${target}" "${src}"
+  fi
+  ui_ok "$display" "synced"
+  ((++COUNT_SYNCED))
 }
 
+# ── Status ────────────────────────────────────────────────────
 status_entry() {
-  local src_rel="$1"
-  local target_raw="$2"
-  local target src
-
-  src="${ROOT_DIR}/${src_rel}"
+  local src_rel="$1" target_raw="$2"
+  local src="${ROOT_DIR}/${src_rel}"
+  local target
   target="$(expand_path "${target_raw}")"
+  local display
+  display="$(short_path "$target")"
 
   if [[ ! -e "${src}" && ! -L "${src}" ]]; then
-    printf 'MISSING_SOURCE | %-40s | %s\n' "${src_rel}" "${target}"
+    ui_warn "$display" "source missing"
     return 0
   fi
 
   if [[ ! -e "${target}" && ! -L "${target}" ]]; then
-    printf 'MISSING_TARGET | %-40s | %s\n' "${src_rel}" "${target}"
+    ui_warn "$display" "not installed"
     return 0
   fi
 
@@ -188,90 +324,122 @@ status_entry() {
     local linked_to
     linked_to="$(readlink "${target}" || true)"
     if [[ "${linked_to}" == "${src}" ]]; then
-      printf 'LINKED        | %-40s | %s\n' "${src_rel}" "${target}"
+      ui_ok "$display" "linked"
     else
-      printf 'WRONG_LINK    | %-40s | %s -> %s\n' "${src_rel}" "${target}" "${linked_to}"
+      ui_err "$display" "wrong link → $(short_path "$linked_to")"
     fi
     return 0
   fi
 
   if [[ -d "${target}" ]]; then
-    printf 'OVERRIDE_DIR  | %-40s | %s\n' "${src_rel}" "${target}"
+    ui_warn "$display" "override (dir)"
+  elif cmp -s "${src}" "${target}"; then
+    ui_ok "$display" "matches"
   else
-    if cmp -s "${src}" "${target}"; then
-      printf 'MATCH_FILE    | %-40s | %s\n' "${src_rel}" "${target}"
-    else
-      printf 'OVERRIDE_FILE | %-40s | %s\n' "${src_rel}" "${target}"
-    fi
+    ui_warn "$display" "override (modified)"
   fi
 }
 
+# ── Manifest iterator ─────────────────────────────────────────
 iterate_manifest() {
   local action="$1"
   local host_os
 
-  [[ -f "${MANIFEST_FILE}" ]] || die "Manifest not found: ${MANIFEST_FILE}"
+  [[ -f "${MANIFEST_FILE}" ]] || die "manifest not found: ${MANIFEST_FILE}"
 
   host_os="$(current_os)"
-  [[ "${host_os}" != "unknown" ]] || die "Unsupported OS: $(uname -s)"
+  [[ "${host_os}" != "unknown" ]] || die "unsupported OS: $(uname -s)"
+
+  # Generate git configs before linking
+  if [[ "${action}" == "install" ]]; then
+    generate_gitconfig "${host_os}"
+    printf '\n'
+  fi
+
+  local os_label
+  case "$host_os" in
+    macos) os_label="macOS" ;;
+    linux) os_label="Linux" ;;
+  esac
+
+  case "${action}" in
+    install) ui_header "Linking dotfiles (${os_label})" ;;
+    sync)    ui_header "Syncing dotfiles (${os_label})" ;;
+    status)  ui_header "Dotfiles status (${os_label})" ;;
+  esac
 
   while IFS='|' read -r src_rel target entry_os entry_mode; do
     [[ -n "${src_rel}" ]] || continue
     [[ "${src_rel}" =~ ^# ]] && continue
 
-    if ! applies_to_os "${entry_os}" "${host_os}"; then
-      continue
-    fi
-    if ! applies_to_mode "${entry_mode}" "${action}"; then
-      continue
-    fi
+    applies_to_os "${entry_os}" "${host_os}" || continue
+    applies_to_mode "${entry_mode}" "${action}" || continue
 
     case "${action}" in
       install) link_entry "${src_rel}" "${target}" ;;
-      sync) copy_back_entry "${src_rel}" "${target}" ;;
-      status) status_entry "${src_rel}" "${target}" ;;
-      list) printf '%s | %s | %s | %s\n' "${src_rel}" "${target}" "${entry_os}" "${entry_mode:-both}" ;;
-      *) die "Unknown action: ${action}" ;;
+      sync)    copy_back_entry "${src_rel}" "${target}" ;;
+      status)  status_entry "${src_rel}" "${target}" ;;
+      list)    printf '  %s → %s  (%s, %s)\n' "${src_rel}" "${target}" "${entry_os}" "${entry_mode:-both}" ;;
+      *)       die "unknown action: ${action}" ;;
     esac
   done < "${MANIFEST_FILE}"
+
+  [[ "${action}" == "list" ]] || ui_summary
 }
 
+# ── CLI ───────────────────────────────────────────────────────
 usage() {
-  cat <<USAGE
-Usage:
-  scripts/dotfiles <install|sync|status|list> [options]
+  cat <<EOF
 
-Options:
-  --dry-run     Print operations without changing files
-  --force       Replace existing files when backup is disabled
-  --no-backup   Do not create *.bak.<timestamp> files before linking
-  --quiet       Reduce logging noise
-USAGE
+  ${BOLD}dotfiles${RST} v${VERSION}
+
+  ${BOLD}Usage:${RST}
+    dotfiles <command> [options]
+
+  ${BOLD}Commands:${RST}
+    install       Link dotfiles from repo to home
+    sync          Copy machine overrides back into repo
+    status        Show link state and drift
+    list          Print active manifest entries
+    gitconfig     Generate git configs from 1Password
+
+  ${BOLD}Options:${RST}
+    --dry-run     Preview without changing anything
+    --force       Replace existing files (when backup is off)
+    --no-backup   Don't create .bak files before linking
+    --quiet       Less output
+
+EOF
 }
 
 main() {
   local action="${1:-}"
   shift || true
 
-  case "${action}" in
-    install|sync|status|list) ;;
-    ""|-h|--help) usage; exit 0 ;;
-    *) die "Invalid action: ${action}" ;;
-  esac
-
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --dry-run) DRY_RUN=1 ;;
-      --force) FORCE=1 ;;
+      --dry-run)   DRY_RUN=1 ;;
+      --force)     FORCE=1 ;;
       --no-backup) BACKUP=0 ;;
-      --quiet) VERBOSE=0 ;;
-      -h|--help) usage; exit 0 ;;
-      *) die "Unknown option: $1" ;;
+      --quiet)     VERBOSE=0 ;;
+      -h|--help)   usage; exit 0 ;;
+      *)           die "unknown option: $1" ;;
     esac
     shift
   done
 
-  iterate_manifest "${action}"
+  printf "\n  ${BOLD}${MAGENTA}dotfiles${RST} ${DIM}v${VERSION}${RST}\n"
+
+  case "${action}" in
+    install|sync|status|list)
+      iterate_manifest "${action}" ;;
+    gitconfig)
+      generate_gitconfig "$(current_os)" ;;
+    ""|-h|--help)
+      usage; exit 0 ;;
+    *)
+      die "invalid command: ${action}" ;;
+  esac
 }
 
 main "$@"

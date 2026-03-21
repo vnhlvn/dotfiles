@@ -1,85 +1,47 @@
 # dotfiles
 
-Portable dotfiles for macOS and Linux with a manifest-driven installer.
+Portable dotfiles for macOS and Linux (Omarchy/Hypr, Ubuntu/i3).
 
-## What changed
-
-- Single installer: `./install.sh` or `make install`
-- Single sync-back flow: `./sync.sh` or `make sync`
-- OS-aware mapping in `dotfiles.manifest`
-- Status report for drift/overrides: `./status.sh` or `make status`
-
-## Quick start on a new machine
+## Quick start
 
 ```bash
 git clone <your-repo-url> ~/dotfiles
 cd ~/dotfiles
-
-# Optional: pull nested theme repo if present
-git submodule update --init --recursive
-
-# Optional: generate git configs from 1Password template values
-make gitconfig
-
-# Link everything declared in manifest
 make install
 ```
 
-## Daily workflow
+`install` will automatically generate git configs from 1Password if `op` is on PATH. If not, it skips gracefully — run `make gitconfig` later.
+
+## Commands
 
 ```bash
-# See what is linked vs overridden
-make status
-
-# If you changed files directly in ~ or ~/.config, import them back into repo
-make sync
+make install       # link dotfiles + generate git configs
+make sync          # copy machine overrides back into repo
+make status        # show link state and drift
+make list          # print active manifest entries
+make gitconfig     # generate git configs from 1Password
 ```
 
-Then commit repo changes.
+All commands support `--dry-run`, `--force`, `--no-backup`, `--quiet`:
 
-## Manifest format
+```bash
+./scripts/dotfiles install --dry-run
+./scripts/dotfiles install --no-backup --force
+```
 
-`dotfiles.manifest` lines are:
+## Manifest
+
+`dotfiles.manifest` maps repo paths to home directory targets:
 
 ```text
 source|target|os|mode
 ```
 
-- `source`: path inside this repository
-- `target`: path on machine (`~` supported)
 - `os`: `all`, `macos`, or `linux`
 - `mode`: `both`, `install`, or `sync`
 
-Example:
-
-```text
-zsh/.zshrc|~/.zshrc|all|both
-picom/picom.conf|~/.config/picom/picom.conf|linux|both
-```
-
-## Commands
-
-- `make install` / `./install.sh`: symlink files from repo to home directory
-- `make sync` / `./sync.sh`: copy machine overrides back into repo
-- `make status` / `./status.sh`: show link and drift state
-- `make list`: print active manifest entries
-- `make gitconfig`: generate `git/dist/.gitconfig*`
-
-## Safety behavior
-
-- `install` backs up existing targets to `*.bak.<timestamp>` before linking
-- Use `--dry-run` to preview operations
-- Use `--no-backup --force` if you want destructive replacement
-
-Examples:
-
-```bash
-./scripts/dotfiles install --dry-run
-./scripts/dotfiles install --no-backup --force
-./scripts/dotfiles sync --dry-run
-```
-
 ## Notes
 
-- Old per-directory scripts (like `tmux/symlink.sh`) are legacy and can be removed later.
-- Keep secrets out of tracked files. Prefer local environment exports or secret managers.
+- Machine-specific env vars and secrets go in `~/.zshrc.local` (gitignored).
+- Tmux status uses `~/weather.sh` and `~/btc.sh` with 10-minute caches.
+- `install` backs up existing targets to `*.bak.<timestamp>` before linking.

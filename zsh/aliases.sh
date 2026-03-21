@@ -7,7 +7,10 @@ vim() {
 }
 alias lsd="lsd -1X"
 alias zshconfig="vim ~/.zshrc"
-alias ohmyzsh="vim ~/.oh-my-zsh"
-alias fdns="sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
 alias oc="opencode"
+
+# macOS-only
+if [[ "$OSTYPE" == darwin* ]]; then
+  alias fdns="sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
+fi
 
