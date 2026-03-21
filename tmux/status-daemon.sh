@@ -8,10 +8,10 @@ INTERVAL=1800 # 30 minutes
 update_weather() {
     local city="${1:-Kyiv}"
     local result
-    result=$(curl -s --max-time 10 "https://wttr.in/${city}?format=%c%t" 2>/dev/null)
+    result=$(curl -s --max-time 10 "https://wttr.in/${city}?format=%t" 2>/dev/null)
     if [ $? -eq 0 ] && [ -n "$result" ] && ! echo "$result" | grep -q "Unknown"; then
-        result=$(echo -n "$result" | tr -d ' ')
-        tmux set -g @weather "$result"
+        result=$(echo -n "$result" | sed 's/[[:space:]][[:space:]]*/ /g; s/^ *//; s/ *$//')
+        tmux set -g @weather "wx:${result}"
     fi
 }
 
